@@ -218,19 +218,21 @@ def initiate_ccavenue(request):
             proto = request.scheme
             base_url = f"{proto}://{host}"
 
-        redirect_url = f"{base_url}/ccavenue-response/"
-        cancel_url = f"{base_url}/ccavenue-response/"
+        redirect_url = config.get('ccavenue_redirect_url', '').strip() or f"{base_url}/ccavenue-response/"
+        cancel_url = config.get('ccavenue_cancel_url', '').strip() or f"{base_url}/ccavenue-response/"
+
+        # CCAvenue order_id MUST be alphanumeric and <= 30 characters
+        ccav_order_id = str(order.token).replace('-', '')[:28]
 
         params = {
             'merchant_id': merchant_id,
-            'order_id': str(order.token),
+            'order_id': ccav_order_id,
             'amount': f"{float(order.total):.2f}",
             'currency': 'INR',
             'redirect_url': redirect_url,
             'cancel_url': cancel_url,
             'language': 'EN',
-            'billing_email': order.customer_email,
-            'integration_type': 'iframe_normal'
+            'billing_email': order.customer_email
         }
         
         plain_text = urllib.parse.urlencode(params)
@@ -249,10 +251,10 @@ def initiate_ccavenue(request):
         return JsonResponse({'status': 'error', 'message': f'Error initiating CCAvenue: {str(e)}'}, status=500)
 
 @csrf_exempt
-@require_http_methods(["POST"])
+@require_http_methods(["GET", "POST"])
 def ccavenue_response(request):
     try:
-        encResp = request.POST.get('encResp', '').strip()
+        encResp = (request.POST.get('encResp') or request.GET.get('encResp') or '').strip()
 
         if not encResp:
             return HttpResponseRedirect('/pay?payment_status=failed&error=no_response_payload')
@@ -270,9 +272,19 @@ def ccavenue_response(request):
         if not order_id:
             return HttpResponseRedirect('/pay?payment_status=failed&error=missing_order_id')
 
+        order = None
         try:
             order = Order.objects.get(token=order_id)
         except Order.DoesNotExist:
+            # Fallback lookup for tokens trimmed or formatted for CCAvenue's 30-char limit
+            order = Order.objects.filter(token__icontains=order_id).first()
+            if not order:
+                for o in Order.objects.all().order_by('-created_at')[:50]:
+                    if str(o.token).replace('-', '')[:28] == order_id:
+                        order = o
+                        break
+
+        if not order:
             return HttpResponseRedirect('/pay?payment_status=failed&error=order_not_found')
 
         if order_status == 'Success':
@@ -280,10 +292,10 @@ def ccavenue_response(request):
             order.ccavenue_tracking_id = response_dict.get('tracking_id', '')
             order.ccavenue_payment_mode = response_dict.get('payment_mode', '')
             order.save()
-            return HttpResponseRedirect(f'/pay?token={order_id}&payment_status=success')
+            return HttpResponseRedirect(f'/pay?token={order.token}&payment_status=success')
         else:
             err_msg = urllib.parse.quote(failure_message or f'Payment {order_status}')
-            return HttpResponseRedirect(f'/pay?token={order_id}&payment_status=failed&error={err_msg}')
+            return HttpResponseRedirect(f'/pay?token={order.token}&payment_status=failed&error={err_msg}')
 
     except Exception as e:
         err_msg = urllib.parse.quote(str(e))
