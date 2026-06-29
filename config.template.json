@@ -1,0 +1,8 @@
+{
+  "smtp_user": "your-email@gmail.com",
+  "smtp_password": "your-app-password",
+  "ccavenue_merchant_id": "your-merchant-id",
+  "ccavenue_access_code": "your-access-code",
+  "ccavenue_working_key": "your-working-key",
+  "base_url": "http://localhost:8002"
+}

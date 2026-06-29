@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Payment Request – Voxlom</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" media="print" onload="this.media='all'">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #0d2b1a 0%, #1a5c3a 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 30px 16px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      max-width: 560px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, .35);
+      overflow: hidden;
+    }
+
+    /* Header */
+    .card-header {
+      background: linear-gradient(135deg, #1a5c3a, #2e7d52);
+      padding: 28px 30px;
+      text-align: center;
+      color: #fff;
+    }
+
+    .card-header h1 {
+      font-size: 22px;
+      margin-bottom: 4px;
+    }
+
+    .card-header p {
+      font-size: 13px;
+      opacity: .8;
+    }
+
+    /* Sections */
+    .section {
+      padding: 22px 30px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .section:last-child {
+      border-bottom: none;
+    }
+
+    h3 {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1a5c3a;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      margin-bottom: 12px;
+    }
+
+    /* Items table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    thead tr {
+      background: #f7f9f5;
+    }
+
+    th {
+      padding: 8px 10px;
+      text-align: left;
+      font-weight: 700;
+      color: #555;
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    td {
+      padding: 8px 10px;
+      border-bottom: 1px solid #f0f0f0;
+      color: #333;
+    }
+
+    .text-right {
+      text-align: right;
+    }
+
+    /* Totals */
+    .totals {
+      font-size: 13px;
+    }
+
+    .totals .row {
+      display: flex;
+      justify-content: space-between;
+      padding: 5px 0;
+      color: #555;
+    }
+
+    .totals .row.total {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1a5c3a;
+      padding-top: 10px;
+      border-top: 2px solid #1a5c3a;
+      margin-top: 6px;
+    }
+
+    /* QR */
+    #qr-section {
+      text-align: center;
+    }
+
+    #qr-wrap {
+      display: inline-block;
+      padding: 12px;
+      border: 2px dashed #1a5c3a;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .upi-id {
+      font-size: 13px;
+      color: #555;
+      margin-top: 6px;
+    }
+
+    .upi-id strong {
+      color: #1a5c3a;
+    }
+
+    /* Address form */
+    #address-form {
+      display: none;
+    }
+
+    .success-banner {
+      background: #e8f5e9;
+      border: 1px solid #a5d6a7;
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin-bottom: 18px;
+      color: #2e7d32;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .success-banner i {
+      font-size: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 4px;
+      margin-top: 12px;
+    }
+
+    input {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 13px;
+      transition: border .2s;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #1a5c3a;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 13px;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 14px;
+      transition: opacity .2s;
+    }
+
+    .btn-pay {
+      background: linear-gradient(135deg, #1a5c3a, #2e7d52);
+      color: #fff;
+    }
+
+    .btn-pay:hover {
+      opacity: .9;
+    }
+
+    .btn-generate {
+      background: linear-gradient(135deg, #d4a017, #b8860b);
+      color: #fff;
+    }
+
+    .btn-generate:hover {
+      opacity: .9;
+    }
+
+    .spinner {
+      display: none;
+      text-align: center;
+      padding: 8px;
+      color: #1a5c3a;
+    }
+
+    .error-msg {
+      color: #c0392b;
+      font-size: 12px;
+      margin-top: 6px;
+      display: none;
+    }
+
+    .success-msg {
+      color: #27ae60;
+      font-size: 12px;
+      margin-top: 6px;
+      display: none;
+    }
+
+    .tag {
+      display: inline-block;
+      background: #e8f5e9;
+      color: #1a5c3a;
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+
+    <!-- Header -->
+    <div class="card-header">
+      <h1>🧾 Payment Request</h1>
+      <p id="inv-label">Loading invoice details…</p>
+    </div>
+
+    <!-- Invoice items -->
+    <div class="section">
+      <h3>Invoice Summary</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Description</th>
+            <th class="text-right">Qty</th>
+            <th class="text-right">Price</th>
+            <th class="text-right">Amount</th>
+          </tr>
+        </thead>
+        <tbody id="items-tbody"></tbody>
+      </table>
+    </div>
+
+    <!-- Totals -->
+    <div class="section">
+      <div class="totals">
+        <div class="row"><span>Sub Total</span><span id="t-subtotal"></span></div>
+        <div class="row" id="t-cgst-row"><span id="t-cgst-label">CGST</span><span id="t-cgst"></span></div>
+        <div class="row" id="t-sgst-row"><span id="t-sgst-label">SGST</span><span id="t-sgst"></span></div>
+        <div class="row" id="t-igst-row"><span id="t-igst-label">IGST</span><span id="t-igst"></span></div>
+        <div class="row total"><span>TOTAL</span><span id="t-total"></span></div>
+      </div>
+    </div>
+
+    <!-- Error Alert Banner (For payment failures/cancellations) -->
+    <div class="error-msg" id="payment-error-alert"
+      style="margin: 15px 30px; padding: 12px; border-radius: 8px; background-color: #fce4d6; border: 1px solid #f8cbad; color: #c0392b; font-size: 13px; font-weight: 500; text-align: center; display: none;">
+    </div>
+
+    <!-- CCAvenue Payment section -->
+    <div class="section" id="qr-section">
+      <h3>Pay Securely with CCAvenue</h3>
+      <div style="text-align:center; padding: 25px 0 15px 0;">
+        <i class="fa-solid fa-credit-card" style="font-size: 44px; color: #1a5c3a; margin-bottom: 12px;"></i>
+        <p style="font-size:15px;color:#333;margin-top:8px;font-weight:700;">
+          Amount to Pay: ₹<span id="ccav-amount">0.00</span>
+        </p>
+        <p style="font-size:12px;color:#666;margin-top:6px;">
+          Accepts Credit Cards, Debit Cards, Netbanking, UPI, and Wallets.
+        </p>
+      </div>
+      <div class="spinner" id="ccav-spinner" style="display:none; text-align:center; padding:10px; color:#1a5c3a;">
+        <i class="fa fa-spinner fa-spin"></i> Redirecting to CCAvenue secure gateway…
+      </div>
+      <button class="btn btn-pay" onclick="payWithCCAvenue()">💳 Proceed to Pay Now</button>
+      <button class="btn" style="background: #e67e22; color: #fff; margin-top: 10px;" onclick="testPayment()">🧪 Bypass Payment (Test Mode)</button>
+    </div>
+
+    <!-- Address form (shown after payment) -->
+    <div class="section" id="address-form">
+      <div class="success-banner">
+        <i class="fa-solid fa-circle-check"></i>
+        Payment Confirmed! Please fill in your billing details to receive your invoice.
+      </div>
+      <h3>Your Billing Details</h3>
+      <label>Company / Name *</label>
+      <input id="f-company" type="text" placeholder="Voxlom Innovative Solution" />
+      <label>Address *</label>
+      <input id="f-address" type="text" placeholder="39/A Gandhi East Street, Panagudi" />
+      <label>City *</label>
+      <input id="f-city" type="text" placeholder="Panagudi" />
+      <label>State</label>
+      <input id="f-state" type="text" placeholder="Tamil Nadu" />
+      <label>PIN Code</label>
+      <input id="f-pin" type="text" placeholder="627108" />
+      <label>GST Number (optional)</label>
+      <input id="f-gst" type="text" placeholder="33AAKCV0062G1ZK" />
+      <label>Email (for sending invoice) *</label>
+      <input id="f-email" type="email" placeholder="you@example.com" />
+      <div class="error-msg" id="form-error">Please fill in all required fields.</div>
+      <div class="success-msg" id="form-success">🎉 Invoice sent to your email!</div>
+      <div class="spinner" id="form-spinner"><i class="fa fa-spinner fa-spin"></i> Generating invoice…</div>
+      <button class="btn btn-generate" onclick="submitDetails()">📄 Generate &amp; Email My Invoice</button>
+    </div>
+
+    <!-- Hidden off-screen container for rendering the pixel-perfect A4 PDF invoice -->
+    <div id="invoice-pdf-container"
+      style="position: absolute; left: -9999px; top: -9999px; width: 210mm; display: block; z-index: -100;">
+      <style>
+        :root {
+          --primary-teal: #00461e;
+          --muted-teal: #00461e;
+          --light-mint: #E6F5F2;
+          --light-blue: #e6edf5;
+          --text-dark: #2E4E49;
+          --text-muted: #5E857C;
+          --gold: #D1A153;
+          --white: #ffffff;
+          --border-hover: rgba(94, 133, 124, 0.3);
+          --bg-focus: rgba(94, 133, 124, 0.05);
+        }
+
+        .invoice-card {
+          background: #ffffff;
+          width: 210mm;
+          height: 240mm;
+          padding: 55px 40px 40px 40px;
+          position: relative;
+          overflow: hidden;
+          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+          border-radius: 12px;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+        }
+
+        .bg-image {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          object-fit: fill;
+          z-index: 0;
+          pointer-events: none;
+        }
+
+        .invoice-content {
+          position: relative;
+          z-index: 10;
+          display: flex;
+          flex-direction: column;
+          flex-grow: 1;
+          margin-right: 10%;
+          margin-left: -10px;
+        }
+
+        .invoice-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 12px;
+          border-bottom: 1px solid rgba(13, 92, 134, 0.247);
+          padding-bottom: 6px;
+          width: 93%;
+        }
+
+        .invoice-title {
+          font-family: 'Outfit', sans-serif;
+          color: var(--primary-teal);
+          font-size: 17px;
+          font-weight: 700;
+          letter-spacing: 1px;
+          margin-bottom: 0;
+          text-transform: uppercase;
+        }
+
+        .invoice-meta {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          gap: 8px;
+          padding-top: 34px;
+          margin-right: 50px !important;
+        }
+
+        .invoice-meta .info-group {
+          justify-content: flex-end;
+        }
+
+        .invoice-meta .info-label {
+          text-align: right;
+          width: auto;
+          margin-right: 8px;
+        }
+
+        .invoice-meta .info-value {
+          text-align: right;
+          min-width: 110px;
+        }
+
+        .info-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 12px;
+        }
+
+        .info-left {
+          width: 55%;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .details-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 6px;
+        }
+
+        .details-left {
+          width: 93%;
+          border-top: 1px solid rgba(13, 92, 134, 0.247);
+          padding-top: 10px;
+        }
+
+        .details-right {
+          width: 40%;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+        }
+
+        .info-right {
+          width: 40%;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          margin-top: -35px;
+        }
+
+        .info-right-top {
+          width: 40%;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          margin-top: -65px;
+        }
+
+        .info-group {
+          font-size: 11px;
+          line-height: 1.5;
+          color: var(--text-dark);
+          display: flex;
+          align-items: flex-start;
+        }
+
+        .info-label {
+          font-weight: 500;
+          color: var(--text-muted);
+          margin-right: 6px;
+          white-space: nowrap;
+        }
+
+        .info-value {
+          font-weight: 600;
+          color: var(--text-dark);
+          min-width: 80px;
+        }
+
+        .info-right .info-group {
+          width: 100%;
+          justify-content: flex-end;
+        }
+
+        .info-right .info-label {
+          width: 130px;
+          text-align: right;
+          margin-right: 12px;
+        }
+
+        .info-right .info-value {
+          width: 120px;
+          text-align: right;
+        }
+
+        .invoice-table-wrapper {
+          margin-bottom: 0;
+          position: relative;
+        }
+
+        .invoice-table {
+          width: 90%;
+          border-collapse: collapse;
+        }
+
+        .invoice-table th {
+          background-color: var(--muted-teal);
+          color: var(--white);
+          font-weight: 700;
+          text-transform: uppercase;
+          font-size: 11px;
+          letter-spacing: 0.08em;
+          padding: 8px 12px;
+          text-align: left;
+          border: 1px solid #eae1ce;
+        }
+
+        .invoice-table th.align-center {
+          text-align: center;
+        }
+
+        .invoice-table th.align-right {
+          text-align: right;
+        }
+
+        .invoice-table td {
+          padding: 8px 12px;
+          font-size: 11px;
+          color: var(--text-dark);
+          border: 1px solid #eae1ce;
+          vertical-align: middle;
+        }
+
+        .invoice-table tr:nth-child(odd) td {
+          background-color: #f7f0de;
+        }
+
+        .invoice-table tr:nth-child(even) td {
+          background-color: #f7f0de;
+        }
+
+        .invoice-table td.align-center {
+          text-align: center;
+        }
+
+        .invoice-table td.align-right {
+          text-align: right;
+        }
+
+        .row-number {
+          font-weight: 600;
+          color: var(--text-muted);
+        }
+
+        .bottom-section {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-top: 15px;
+          padding-top: 0;
+        }
+
+        .bottom-left {
+          width: 52%;
+          display: flex;
+          flex-direction: column;
+          gap: 24px;
+        }
+
+        .bottom-right {
+          width: 35%;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          margin-right: 50px !important;
+          position: relative;
+          top: 15px;
+        }
+
+        .section-title {
+          color: var(--primary-teal);
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 0.05em;
+          margin-bottom: 8px;
+          text-transform: uppercase;
+        }
+
+        .bill-to-section {
+          width: 35%;
+          margin-bottom: 10px;
+          margin-left: 50px;
+        }
+
+        .bill-to-section .bill-to-title {
+          color: var(--primary-teal);
+          font-size: 10.5px;
+          font-weight: 700;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          margin-bottom: 6px;
+          padding-bottom: 4px;
+          border-bottom: 1.5px solid var(--primary-teal);
+          display: inline-block;
+          margin-left: 15px;
+        }
+
+        .bill-to-fields {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          margin-top: 6px;
+        }
+
+        .bill-to-field {
+          font-size: 11px;
+          color: var(--text-dark);
+          font-weight: 500;
+          min-height: 20px;
+        }
+
+        .bill-to-field.bill-name {
+          font-weight: 700;
+          font-size: 12.5px;
+          color: var(--text-dark);
+        }
+
+        .payment-list {
+          display: flex;
+          flex-direction: column;
+          gap: 5px;
+          font-size: 10.5px;
+        }
+
+        .payment-item {
+          display: flex;
+        }
+
+        .payment-label {
+          font-weight: 600;
+          color: var(--text-muted);
+          width: 95px;
+          flex-shrink: 0;
+        }
+
+        .payment-val {
+          color: var(--text-dark);
+          font-weight: 500;
+          margin-left: -38px;
+          margin-top: -2px;
+        }
+
+        .terms-text {
+          font-size: 10px;
+          line-height: 1.6;
+          color: var(--text-muted);
+          font-weight: 500;
+        }
+
+        .totals-block {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          width: 100%;
+          max-width: 280px;
+          margin-bottom: 10px;
+        }
+
+        .total-row {
+          display: flex;
+          justify-content: space-between;
+          font-size: 11px;
+          font-weight: 700;
+          color: var(--primary-teal);
+          padding: 2px 4px;
+        }
+
+        .total-row-highlight {
+          background-color: var(--muted-teal);
+          color: var(--white);
+          padding: 8px 14px;
+          border-radius: 4px;
+          font-size: 12px;
+          font-weight: 700;
+          margin-top: 6px;
+          display: flex;
+          justify-content: space-between;
+        }
+
+        .total-row-highlight span {
+          color: var(--white);
+        }
+
+        .thank-you-block {
+          position: absolute;
+          bottom: 40px;
+          right: 120px;
+          text-align: right;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+        }
+
+        .thank-you-title {
+          font-size: 24px;
+          font-weight: 700;
+          color: #be9428;
+          letter-spacing: 2px;
+          text-transform: uppercase;
+          margin-bottom: 10px;
+        }
+
+        .social-icons {
+          display: flex;
+          gap: 10px;
+          margin-bottom: 8px;
+        }
+
+        .social-icon {
+          background-color: #d6a031;
+          color: #081b0b;
+          width: 26px;
+          height: 26px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          text-decoration: none;
+          font-size: 12px;
+          transition: background-color 0.2s, transform 0.2s;
+        }
+
+        .social-icon:hover {
+          background-color: var(--primary-teal);
+          transform: translateY(-2px);
+        }
+
+        .website-link {
+          font-size: 11px;
+          font-weight: 600;
+          color: var(--muted-teal);
+          text-decoration: none;
+          letter-spacing: 0.5px;
+          transition: color 0.2s;
+        }
+
+        .website-link:hover {
+          color: var(--primary-teal);
+        }
+
+        #invoice-paper.pdf-rendering .no-print {
+          display: none !important;
+          visibility: hidden !important;
+        }
+      </style>
+
+      <!-- The A4 Sheet Layout -->
+      <div class="invoice-card" id="invoice-paper">
+        <img class="bg-image" src="/static/core/bg.png" alt="Invoice Background">
+        <div class="invoice-content">
+          <!-- Title -->
+          <div class="invoice-header">
+            <h1 class="invoice-title">Invoice</h1>
+            <div class="info-right-top">
+              <div class="invoice-meta">
+                <div class="info-group">
+                  <span class="info-label">Invoice Number:</span>
+                  <span class="info-value" id="invoice-num"></span>
+                </div>
+                <div class="info-group">
+                  <span class="info-label">Invoice Date:</span>
+                  <span class="info-value" id="invoice-date"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Company Info Row -->
+          <div class="info-row">
+            <div class="info-left">
+              <div class="info-group">
+                <span class="info-value" id="company-address">Kamarajar Tech Campus,<br>39/A, Gandhi East Street,
+                  Panagudi,</span>
+              </div>
+              <div class="info-group">
+                <span class="info-value" id="company-city">Panagudi, Tamil Nadu - 627108</span>
+              </div>
+              <div class="info-group">
+                <span class="info-value" id="company-phone">+91 9092421284</span>
+              </div>
+              <div class="info-group">
+                <span class="info-value" id="company-email">info@voxlom.com</span>
+              </div>
+              <div class="info-group">
+                <span class="info-label">GST :</span>
+                <span class="info-value" id="company-gst">33AAKCV0062G1ZK</span>
+              </div>
+            </div>
+            <div class="bill-to-section">
+              <span class="bill-to-title">Bill To</span>
+              <div class="bill-to-fields">
+                <div class="bill-to-field bill-name" id="bill-name">Client Name</div>
+                <div class="bill-to-field" id="bill-address">Street Address</div>
+                <div class="bill-to-field" id="bill-city">City, State, Zip Code</div>
+                <div class="bill-to-field" style="display: flex; align-items: center;">
+                  <span class="info-label">GST :</span>
+                  <span class="info-value" id="bill-gst">Customer GST Number</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Table of Items -->
+          <div class="invoice-table-wrapper">
+            <table class="invoice-table">
+              <thead>
+                <tr>
+                  <th class="align-center" style="width: 8%;">No</th>
+                  <th style="width: 48%;">Description</th>
+                  <th class="align-center" style="width: 16%;">Price</th>
+                  <th class="align-center" style="width: 12%;">Qty</th>
+                  <th class="align-right" style="width: 16%;">Amount</th>
+                </tr>
+              </thead>
+              <tbody id="invoice-items-tbody">
+                <!-- Rendered by JS -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Bottom Section -->
+          <div class="bottom-section">
+            <!-- Details column (Left) -->
+            <div class="bottom-left">
+              <div>
+                <div class="section-title">Payment Details</div>
+                <div class="payment-list">
+                  <div class="payment-item">
+                    <span class="payment-label">Account:</span>
+                    <span class="payment-val" id="pay-acc">248531222446999</span>
+                  </div>
+                  <div class="payment-item">
+                    <span class="payment-label">A/C Name:</span>
+                    <span class="payment-val" id="pay-name">Voxlom Innovative Solution opc pvt Ltd</span>
+                  </div>
+                  <div class="payment-item">
+                    <span class="payment-label">Bank Details:</span>
+                    <span class="payment-val" id="pay-bank">TMB Ltd, Panagudi Branch</span>
+                  </div>
+                  <div class="payment-item">
+                    <span class="payment-label">IFSC Code:</span>
+                    <span class="payment-val" id="pay-ifsc">TMBL0000248</span>
+                  </div>
+                  <div class="payment-item">
+                    <span class="payment-label">UPI ID:</span>
+                    <span class="payment-val" id="pay-upi"></span>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div class="section-title">Terms & Conditions</div>
+                <div class="terms-text" id="terms-box">
+                  Payment is due within 3 days from the invoice date.<br>
+                  Late payments may incur additional charges.<br>
+                  No refunds after project delivery.
+                </div>
+              </div>
+            </div>
+
+            <!-- Totals & Thank You column (Right) -->
+            <div class="bottom-right">
+              <div class="totals-block">
+                <div class="total-row">
+                  <span>SUB TOTAL</span>
+                  <span id="invoice-subtotal-value">0.00</span>
+                </div>
+                <div class="total-row" id="invoice-cgst-row">
+                  <span id="invoice-cgst-label">CGST (9%)</span>
+                  <span id="invoice-cgst-value">0.00</span>
+                </div>
+                <div class="total-row" id="invoice-sgst-row">
+                  <span id="invoice-sgst-label">SGST (9%)</span>
+                  <span id="invoice-sgst-value">0.00</span>
+                </div>
+                <div class="total-row" id="invoice-igst-row" style="display: none;">
+                  <span id="invoice-igst-label">IGST (18%)</span>
+                  <span id="invoice-igst-value">0.00</span>
+                </div>
+                <div class="total-row-highlight">
+                  <span>TOTAL</span>
+                  <span id="invoice-total-value">0.00</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="thank-you-block">
+          <div class="thank-you-title">Thank You</div>
+          <div class="social-icons">
+            <a href="#" class="social-icon"><i class="fa-brands fa-instagram"></i></a>
+            <a href="#" class="social-icon"><i class="fa-brands fa-facebook-f"></i></a>
+            <a href="#" class="social-icon"><i class="fa-brands fa-twitter"></i></a>
+            <a href="#" class="social-icon"><i class="fa-brands fa-whatsapp"></i></a>
+          </div>
+          <a href="https://www.voxlom.com" target="_blank" class="website-link" style="color: #be9428;"
+            id="web-link">www.voxlom.com</a>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ── Order data injected by server ─────────────────────────────────────────
+      const ORDER = {{ order_json|safe }};
+
+      // ── Populate page ──────────────────────────────────────────────────────────
+      document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('inv-label').textContent =
+          `Invoice ${ORDER.invoice_num}  •  Due: ₹${ORDER.total}`;
+
+        // Items
+        const tbody = document.getElementById('items-tbody');
+        ORDER.items.forEach((item, i) => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td>${i + 1}</td><td>${item.desc}</td>
+        <td class="text-right">${item.qty}</td>
+        <td class="text-right">₹${parseFloat(item.price).toFixed(2)}</td>
+        <td class="text-right">₹${parseFloat(item.amount).toFixed(2)}</td>`;
+          tbody.appendChild(tr);
+        });
+
+        // Totals
+        document.getElementById('t-subtotal').textContent = '₹' + parseFloat(ORDER.subtotal).toFixed(2);
+        document.getElementById('t-total').textContent = '₹' + parseFloat(ORDER.total).toFixed(2);
+
+        if (ORDER.gst_type === 'CGST + SGST') {
+          document.getElementById('t-cgst-label').textContent = `CGST (${ORDER.gst_rate / 2}%)`;
+          document.getElementById('t-sgst-label').textContent = `SGST (${ORDER.gst_rate / 2}%)`;
+          document.getElementById('t-cgst').textContent = '₹' + parseFloat(ORDER.cgst).toFixed(2);
+          document.getElementById('t-sgst').textContent = '₹' + parseFloat(ORDER.sgst).toFixed(2);
+          document.getElementById('t-igst-row').style.display = 'none';
+        } else {
+          document.getElementById('t-igst-label').textContent = `IGST (${ORDER.gst_rate}%)`;
+          document.getElementById('t-igst').textContent = '₹' + parseFloat(ORDER.igst).toFixed(2);
+          document.getElementById('t-cgst-row').style.display = 'none';
+          document.getElementById('t-sgst-row').style.display = 'none';
+        }
+
+        // Set CCAvenue amount
+        const ccavAmountEl = document.getElementById('ccav-amount');
+        if (ccavAmountEl) {
+          ccavAmountEl.textContent = parseFloat(ORDER.total).toFixed(2);
+        }
+
+        // Pre-fill email
+        document.getElementById('f-email').value = ORDER.customer_email || '';
+
+        // Handle payment routing based on status
+        if (ORDER.payment_status === 'paid' || ORDER.status === 'paid') {
+          document.getElementById('qr-section').style.display = 'none';
+          document.getElementById('address-form').style.display = 'block';
+        } else {
+          // Check query string for payment failure feedback
+          const urlParams = new URLSearchParams(window.location.search);
+          const paymentStatus = urlParams.get('payment_status');
+          const paymentError = urlParams.get('error');
+          if (paymentStatus === 'failed') {
+            const errorAlert = document.getElementById('payment-error-alert');
+            if (errorAlert) {
+              errorAlert.style.display = 'block';
+              errorAlert.textContent = '❌ Payment Failed: ' + decodeURIComponent(paymentError || 'Please try again.');
+            }
+          }
+        }
+      });
+
+      // ── CCAvenue Payment ────────────────────────────────────────────────────────
+      async function payWithCCAvenue() {
+        const spinner = document.getElementById('ccav-spinner');
+        const errorAlert = document.getElementById('payment-error-alert');
+
+        if (spinner) spinner.style.display = 'block';
+        if (errorAlert) errorAlert.style.display = 'none';
+
+        try {
+          const res = await fetch('/initiate-ccavenue/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: ORDER.token })
+          });
+          const data = await res.json();
+
+          if (spinner) spinner.style.display = 'none';
+
+          if (data.status === 'success') {
+            // Create form dynamically to POST encrypted request to CCAvenue
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = 'https://test.ccavenue.com/transaction/transaction.do?command=initiateTransaction';
+
+            const encReqInput = document.createElement('input');
+            encReqInput.type = 'hidden';
+            encReqInput.name = 'encRequest';
+            encReqInput.value = data.encRequest;
+            form.appendChild(encReqInput);
+
+            const accessCodeInput = document.createElement('input');
+            accessCodeInput.type = 'hidden';
+            accessCodeInput.name = 'access_code';
+            accessCodeInput.value = data.access_code;
+            form.appendChild(accessCodeInput);
+
+            document.body.appendChild(form);
+            form.submit();
+          } else {
+            if (errorAlert) {
+              errorAlert.style.display = 'block';
+              errorAlert.textContent = '❌ Error: ' + (data.message || 'Could not initiate payment.');
+            }
+          }
+        } catch (e) {
+          if (spinner) spinner.style.display = 'none';
+          if (errorAlert) {
+            errorAlert.style.display = 'block';
+            errorAlert.textContent = '❌ Connection Error: Could not reach the server.';
+          }
+        }
+      }
+
+      // ── Test Payment Bypass ───────────────────────────────────────────────────
+      function testPayment() {
+        if(confirm("This will bypass the payment gateway for testing. Proceed?")) {
+            window.location.href = '/test-payment/?token=' + ORDER.token;
+        }
+      }
+
+      // ── Populate hidden A4 invoice template ────────────────────────────────────
+      function populateInvoiceCard(company, address, city, state, pin, gst, email) {
+        // Basic meta
+        document.getElementById('invoice-num').textContent = ORDER.invoice_num || 'Invoice';
+        document.getElementById('invoice-date').textContent = ORDER.invoice_date || '';
+
+        // Bill To
+        document.getElementById('bill-name').textContent = company;
+        document.getElementById('bill-address').textContent = address;
+        document.getElementById('bill-city').textContent = `${city}${state ? ', ' + state : ''}${pin ? ' - ' + pin : ''}`;
+        document.getElementById('bill-gst').textContent = gst || 'N/A';
+
+        // UPI ID
+        document.getElementById('pay-upi').textContent = ORDER.upi_id || 'voxlom@tmb';
+
+        // Items table
+        const tbody = document.getElementById('invoice-items-tbody');
+        tbody.innerHTML = '';
+        ORDER.items.forEach((item, idx) => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+        <td class="align-center row-number">${idx + 1}</td>
+        <td>${item.desc}</td>
+        <td class="align-center">₹${parseFloat(item.price).toFixed(2)}</td>
+        <td class="align-center">${item.qty}</td>
+        <td class="align-right">₹${parseFloat(item.amount).toFixed(2)}</td>
+      `;
+          tbody.appendChild(tr);
+        });
+
+        // Totals
+        document.getElementById('invoice-subtotal-value').textContent = '₹' + parseFloat(ORDER.subtotal).toFixed(2);
+        document.getElementById('invoice-total-value').textContent = '₹' + parseFloat(ORDER.total).toFixed(2);
+
+        const cgstRow = document.getElementById('invoice-cgst-row');
+        const sgstRow = document.getElementById('invoice-sgst-row');
+        const igstRow = document.getElementById('invoice-igst-row');
+
+        if (ORDER.gst_type === 'CGST + SGST') {
+          cgstRow.style.display = 'flex';
+          sgstRow.style.display = 'flex';
+          igstRow.style.display = 'none';
+
+          document.getElementById('invoice-cgst-label').textContent = `CGST (${ORDER.gst_rate / 2}%)`;
+          document.getElementById('invoice-sgst-label').textContent = `SGST (${ORDER.gst_rate / 2}%)`;
+          document.getElementById('invoice-cgst-value').textContent = '₹' + parseFloat(ORDER.cgst).toFixed(2);
+          document.getElementById('invoice-sgst-value').textContent = '₹' + parseFloat(ORDER.sgst).toFixed(2);
+        } else {
+          cgstRow.style.display = 'none';
+          sgstRow.style.display = 'none';
+          igstRow.style.display = 'flex';
+
+          document.getElementById('invoice-igst-label').textContent = `IGST (${ORDER.gst_rate}%)`;
+          document.getElementById('invoice-igst-value').textContent = '₹' + parseFloat(ORDER.igst).toFixed(2);
+        }
+      }
+
+      // ── Load Script dynamically ────────────────────────────────────────────────
+      function loadScript(url) {
+        return new Promise((resolve, reject) => {
+          if (window.html2pdf) {
+            resolve();
+            return;
+          }
+          const script = document.createElement('script');
+          script.src = url;
+          script.onload = resolve;
+          script.onerror = reject;
+          document.head.appendChild(script);
+        });
+      }
+
+      // ── Submit billing details ─────────────────────────────────────────────────
+      async function submitDetails() {
+        const company = document.getElementById('f-company').value.trim();
+        const address = document.getElementById('f-address').value.trim();
+        const city = document.getElementById('f-city').value.trim();
+        const email = document.getElementById('f-email').value.trim();
+        const state = document.getElementById('f-state').value.trim();
+        const pin = document.getElementById('f-pin').value.trim();
+        const gst = document.getElementById('f-gst').value.trim();
+
+        document.getElementById('form-error').style.display = 'none';
+        document.getElementById('form-success').style.display = 'none';
+
+        if (!company || !address || !city || !email) {
+          document.getElementById('form-error').style.display = 'block';
+          return;
+        }
+
+        document.getElementById('form-spinner').style.display = 'block';
+
+        // Load html2pdf dynamically to prevent page load blockage
+        try {
+          await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js');
+        } catch (err) {
+          console.error('Failed to load html2pdf script:', err);
+          document.getElementById('form-spinner').style.display = 'none';
+          document.getElementById('form-error').textContent = 'Failed to load PDF generation library. Please check your internet connection.';
+          document.getElementById('form-error').style.display = 'block';
+          return;
+        }
+
+        // Populate the hidden template
+        populateInvoiceCard(company, address, city, state, pin, gst, email);
+
+        // Setup rendering options
+        const element = document.getElementById('invoice-paper');
+        element.classList.add('pdf-rendering');
+        const invNum = ORDER.invoice_num || 'Invoice';
+
+        const rect = element.getBoundingClientRect();
+        const widthMM = 210;
+        const heightMM = (rect.height / rect.width) * widthMM + 0.5;
+
+        const opt = {
+          margin: 0,
+          filename: `Invoice-${invNum}.pdf`,
+          image: { type: 'jpeg', quality: 1.0 },
+          html2canvas: {
+            scale: 2,
+            useCORS: true,
+            allowTaint: false,
+            letterRendering: true,
+            backgroundColor: '#ffffff',
+            scrollX: 0,
+            scrollY: 0
+          },
+          jsPDF: {
+            unit: 'mm',
+            format: [widthMM, heightMM],
+            orientation: 'portrait'
+          },
+          pagebreak: { mode: 'css' }
+        };
+
+        let pdfBase64 = '';
+        try {
+          pdfBase64 = await html2pdf().set(opt).from(element).output('datauristring');
+        } catch (err) {
+          console.error('PDF rendering failed:', err);
+        } finally {
+          element.classList.remove('pdf-rendering');
+        }
+
+        const payload = {
+          token: ORDER.token,
+          company,
+          address,
+          city,
+          state,
+          pin,
+          gst,
+          email,
+          pdf_data: pdfBase64
+        };
+
+        try {
+          const res = await fetch('/submit-details/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          const data = await res.json();
+          document.getElementById('form-spinner').style.display = 'none';
+
+          if (data.status === 'success') {
+            document.getElementById('form-success').style.display = 'block';
+            document.querySelector('.btn-generate').disabled = true;
+          } else {
+            document.getElementById('form-error').textContent = data.message || 'Error occurred.';
+            document.getElementById('form-error').style.display = 'block';
+          }
+        } catch (e) {
+          document.getElementById('form-spinner').style.display = 'none';
+          document.getElementById('form-error').textContent = 'Could not reach server.';
+          document.getElementById('form-error').style.display = 'block';
+        }
+      }
+    </script>
+</body>
+
+</html>
