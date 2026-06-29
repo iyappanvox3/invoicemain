@@ -608,13 +608,6 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
                                         <strong>IFSC Code:</strong> SBIN0001234<br>
                                         <strong>UPI ID:</strong> {upi_id}
                                     </div>
-
-                                    <div class="section-title">Terms & Conditions</div>
-                                    <div class="terms-box">
-                                        1. Payment is due within 3 days from the invoice date.<br>
-                                        2. Late payments may incur additional charges.<br>
-                                        3. No refunds after project delivery.
-                                    </div>
                                 </td>
                                 <td class="bottom-right">
                                     <table class="totals-table">

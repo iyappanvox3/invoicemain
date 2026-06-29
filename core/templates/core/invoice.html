@@ -1315,15 +1315,6 @@
                         </div>
                     </div>
 
-                    <div>
-                        <div class="section-title">Terms & Conditions</div>
-                        <div class="terms-text editable" contenteditable="true" id="terms-box"
-                            data-placeholder="Enter Terms & Conditions...">
-                            Payment is due within 3 days from the invoice date.<br>
-                            Late payments may incur additional charges.<br>
-                            No refunds after project delivery.
-                        </div>
-                    </div>
                 </div>
 
                 <!-- Totals & Thank You column (Right) -->
@@ -1643,7 +1634,6 @@
             document.getElementById('pay-ifsc').innerText = 'TMBL0000248';
             document.getElementById('pay-upi').innerText = 'voxlom@tmb';
 
-            document.getElementById('terms-box').innerHTML = 'Payment is due within 3 days from the invoice date.<br>Late payments may incur additional charges.<br>No refunds after project delivery.';
             document.getElementById('tax-value').innerText = '18%';
             const gstTypeSelect = document.getElementById('gst-type');
             if (gstTypeSelect) gstTypeSelect.value = 'cgst-sgst';
