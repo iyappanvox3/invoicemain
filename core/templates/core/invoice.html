@@ -953,7 +953,8 @@
         #invoice-paper.pdf-rendering .no-print,
         #invoice-paper.pdf-rendering .delete-row-btn,
         #invoice-paper.pdf-rendering .add-row-btn,
-        #invoice-paper.pdf-rendering .gst-dropdown-wrapper {
+        #invoice-paper.pdf-rendering .gst-dropdown-wrapper,
+        #invoice-paper.pdf-rendering .hide-in-pdf {
             display: none !important;
             visibility: hidden !important;
         }
@@ -1150,7 +1151,7 @@
     <!-- Utility Header (Hidden when saved/printed) -->
     <div class="editor-controls no-print">
         <div class="control-brand">
-            <i class="fa-solid fa-file-invoice"></i>
+            <img src="/static/core/logo.png" alt="Logo" style="height: 38px; width: auto;">
             <span>VOXLOM Invoice Creator</span>
         </div>
         <div class="control-actions">
@@ -1245,7 +1246,7 @@
                             data-placeholder="Street Address...">Street Address</div>
                         <div class="bill-to-field editable" contenteditable="true" id="bill-city"
                             data-placeholder="City, State, Zip Code...">City, State, Zip Code</div>
-                        <div class="bill-to-field" style="display: flex; align-items: center;">
+                        <div class="bill-to-field" style="display: flex; align-items: center;" id="bill-gst-wrapper">
                             <span class="info-label">GST :</span>
                             <span class="info-value editable" contenteditable="true" id="bill-gst"
                                 data-placeholder="Customer GST Number...">Customer GST Number</span>
@@ -1663,6 +1664,16 @@
 
             function runPDF() {
                 const element = document.getElementById('invoice-paper');
+                const billGstWrapper = document.getElementById('bill-gst-wrapper');
+                const billGstEl = document.getElementById('bill-gst');
+                if (billGstWrapper && billGstEl) {
+                    const txt = (billGstEl.innerText || billGstEl.textContent || '').trim();
+                    if (!txt || txt === 'Customer GST Number' || txt === 'Customer GST Number...' || txt.toUpperCase() === 'N/A') {
+                        billGstWrapper.classList.add('hide-in-pdf');
+                    } else {
+                        billGstWrapper.classList.remove('hide-in-pdf');
+                    }
+                }
                 element.classList.add('pdf-rendering');
                 const invNum = document.getElementById('invoice-num').innerText.trim() || 'Invoice';
 
@@ -1802,6 +1813,16 @@
             };
 
             function performSend(srcToRestore) {
+                const billGstWrapper = document.getElementById('bill-gst-wrapper');
+                const billGstEl = document.getElementById('bill-gst');
+                if (billGstWrapper && billGstEl) {
+                    const txt = (billGstEl.innerText || billGstEl.textContent || '').trim();
+                    if (!txt || txt === 'Customer GST Number' || txt === 'Customer GST Number...' || txt.toUpperCase() === 'N/A') {
+                        billGstWrapper.classList.add('hide-in-pdf');
+                    } else {
+                        billGstWrapper.classList.remove('hide-in-pdf');
+                    }
+                }
                 element.classList.add('pdf-rendering');
                 // Generate base64 string
                 html2pdf().set(opt).from(element).output('datauristring').then(function (pdfBase64) {

@@ -784,7 +784,8 @@
           color: var(--primary-teal);
         }
 
-        #invoice-paper.pdf-rendering .no-print {
+        #invoice-paper.pdf-rendering .no-print,
+        #invoice-paper.pdf-rendering .hide-in-pdf {
           display: none !important;
           visibility: hidden !important;
         }
@@ -838,7 +839,7 @@
                 <div class="bill-to-field bill-name" id="bill-name">Client Name</div>
                 <div class="bill-to-field" id="bill-address">Street Address</div>
                 <div class="bill-to-field" id="bill-city">City, State, Zip Code</div>
-                <div class="bill-to-field" style="display: flex; align-items: center;">
+                <div class="bill-to-field" style="display: flex; align-items: center;" id="bill-gst-wrapper">
                   <span class="info-label">GST :</span>
                   <span class="info-value" id="bill-gst">Customer GST Number</span>
                 </div>
@@ -1081,7 +1082,21 @@
         document.getElementById('bill-name').textContent = company;
         document.getElementById('bill-address').textContent = address;
         document.getElementById('bill-city').textContent = `${city}${state ? ', ' + state : ''}${pin ? ' - ' + pin : ''}`;
-        document.getElementById('bill-gst').textContent = gst || 'N/A';
+        const billGstWrapper = document.getElementById('bill-gst-wrapper');
+        const gstValue = (gst || '').trim();
+        if (gstValue && gstValue.toUpperCase() !== 'N/A') {
+          document.getElementById('bill-gst').textContent = gstValue;
+          if (billGstWrapper) {
+            billGstWrapper.style.display = 'flex';
+            billGstWrapper.classList.remove('hide-in-pdf');
+          }
+        } else {
+          document.getElementById('bill-gst').textContent = '';
+          if (billGstWrapper) {
+            billGstWrapper.style.display = 'none';
+            billGstWrapper.classList.add('hide-in-pdf');
+          }
+        }
 
         // UPI ID
         document.getElementById('pay-upi').textContent = ORDER.upi_id || 'voxlom@tmb';
@@ -1179,6 +1194,17 @@
 
         // Setup rendering options
         const element = document.getElementById('invoice-paper');
+        const billGstWrapper = document.getElementById('bill-gst-wrapper');
+        const billGstEl = document.getElementById('bill-gst');
+        if (billGstWrapper && billGstEl) {
+          const txt = (billGstEl.textContent || '').trim();
+          if (!txt || txt === 'Customer GST Number' || txt.toUpperCase() === 'N/A') {
+            billGstWrapper.style.display = 'none';
+            billGstWrapper.classList.add('hide-in-pdf');
+          } else {
+            billGstWrapper.classList.remove('hide-in-pdf');
+          }
+        }
         element.classList.add('pdf-rendering');
         const invNum = ORDER.invoice_num || 'Invoice';
 
