@@ -315,7 +315,8 @@
         <i class="fa fa-spinner fa-spin"></i> Redirecting to CCAvenue secure gateway…
       </div>
       <button class="btn btn-pay" onclick="payWithCCAvenue()">💳 Proceed to Pay Now</button>
-      <button class="btn" style="background: #e67e22; color: #fff; margin-top: 10px;" onclick="testPayment()">🧪 Bypass Payment (Test Mode)</button>
+      <button class="btn" style="background: #e67e22; color: #fff; margin-top: 10px;" onclick="testPayment()">🧪 Bypass
+        Payment (Test Mode)</button>
     </div>
 
     <!-- Address form (shown after payment) -->
@@ -1032,7 +1033,7 @@
             // Create form dynamically to POST encrypted request to CCAvenue
             const form = document.createElement('form');
             form.method = 'POST';
-            form.action = 'https://test.ccavenue.com/transaction/transaction.do?command=initiateTransaction';
+            form.action = 'https://secure.ccavenue.com/transaction/transaction.do?command=initiateTransaction';
 
             const encReqInput = document.createElement('input');
             encReqInput.type = 'hidden';
@@ -1065,8 +1066,8 @@
 
       // ── Test Payment Bypass ───────────────────────────────────────────────────
       function testPayment() {
-        if(confirm("This will bypass the payment gateway for testing. Proceed?")) {
-            window.location.href = '/test-payment/?token=' + ORDER.token;
+        if (confirm("This will bypass the payment gateway for testing. Proceed?")) {
+          window.location.href = '/test-payment/?token=' + ORDER.token;
         }
       }
 
