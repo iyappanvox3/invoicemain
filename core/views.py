@@ -232,7 +232,14 @@ def initiate_ccavenue(request):
             'redirect_url': redirect_url,
             'cancel_url': cancel_url,
             'language': 'EN',
-            'billing_email': order.customer_email
+            'billing_email': order.customer_email,
+            'billing_name': order.billing_company or '',
+            'billing_address': order.billing_address or '',
+            'billing_city': order.billing_city or '',
+            'billing_state': order.billing_state or '',
+            'billing_zip': order.billing_pin or '',
+            'billing_country': 'India',
+            'merchant_param1': order.invoice_num
         }
         
         plain_text = urllib.parse.urlencode(params)
