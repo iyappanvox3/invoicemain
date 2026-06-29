@@ -218,8 +218,8 @@ def initiate_ccavenue(request):
             proto = request.scheme
             base_url = f"{proto}://{host}"
 
-        redirect_url = f"{base_url}/ccavenue-response/"
-        cancel_url = f"{base_url}/ccavenue-response/"
+        redirect_url = "https://www.voxlom.com/ccavenue-response.php"
+        cancel_url = "https://www.voxlom.com/ccavenue-response.php"
 
         params = {
             'merchant_id': merchant_id,
@@ -249,10 +249,11 @@ def initiate_ccavenue(request):
         return JsonResponse({'status': 'error', 'message': f'Error initiating CCAvenue: {str(e)}'}, status=500)
 
 @csrf_exempt
-@require_http_methods(["POST"])
+@require_http_methods(["POST", "GET"])
 def ccavenue_response(request):
     try:
-        encResp = request.POST.get('encResp', '').strip()
+        # Accept encResp from POST (direct from CCAvenue) or GET (forwarded from www.voxlom.com bridge)
+        encResp = (request.POST.get('encResp') or request.GET.get('encResp', '')).strip()
 
         if not encResp:
             return HttpResponseRedirect('/pay?payment_status=failed&error=no_response_payload')
