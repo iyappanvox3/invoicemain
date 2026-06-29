@@ -1169,7 +1169,7 @@
     <div class="invoice-card" id="invoice-paper">
 
         <!-- Real img tag for background Ã¢â‚¬â€ captured correctly by html2canvas for PDF export -->
-        <img class="bg-image" src="bg.png" alt="Invoice Background">
+        <img class="bg-image" src="/static/core/bg.png" alt="Invoice Background">
 
         <div class="invoice-content">
 
@@ -1984,6 +1984,19 @@
         // Initialize elements on load
         document.addEventListener('DOMContentLoaded', () => {
             resetData();
+
+            // Background image fallback handling (offline or image error)
+            const bgImg = document.querySelector('.bg-image');
+            if (bgImg && typeof INVOICE_BG_DATA !== 'undefined' && INVOICE_BG_DATA) {
+                if (window.location.protocol === 'file:') {
+                    bgImg.setAttribute('src', INVOICE_BG_DATA);
+                } else {
+                    bgImg.onerror = function () {
+                        bgImg.setAttribute('src', INVOICE_BG_DATA);
+                        bgImg.onerror = null;
+                    };
+                }
+            }
 
             // Bind calculations for Tax cell changes
             const taxCell = document.getElementById('tax-value');
