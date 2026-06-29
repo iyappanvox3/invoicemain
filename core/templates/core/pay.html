@@ -1026,6 +1026,17 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ token: ORDER.token })
           });
+
+          if (!res.ok) {
+            const errText = await res.text();
+            if (spinner) spinner.style.display = 'none';
+            if (errorAlert) {
+              errorAlert.style.display = 'block';
+              errorAlert.textContent = `❌ Server Error (${res.status}): ${errText.slice(0, 150)}`;
+            }
+            return;
+          }
+
           const data = await res.json();
 
           if (spinner) spinner.style.display = 'none';
@@ -1060,7 +1071,7 @@
           if (spinner) spinner.style.display = 'none';
           if (errorAlert) {
             errorAlert.style.display = 'block';
-            errorAlert.textContent = '❌ Connection Error: Could not reach the server.';
+            errorAlert.textContent = '❌ Error: ' + e.message;
           }
         }
       }
